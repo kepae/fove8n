@@ -1,0 +1,19 @@
+Tracking what I'm learning.
+
+26 April 2021
+
+I learned 1) how to get  optic flow data and 2) how to apply the convolutions from the first layer of a trained CNN to individual frames. I can send you the code, or if you were able to get an openmind account, I can show you where it is on openmind.
+
+I’ve also been thinking about the easiest approach to the dimension problem. Applying the convolution from the first layer of a pre-trained resnet-50 reduces the image w x h dimensions by 2 so I think that’ll be relatively easy to handle by getting the data on the half-size image (i.e., take every other pixel of the image to create a new image and then get the x, y, r coordinates and the optic flow on the reduced-size image) and putting the results from the first layer of the convnet.
+
+If that’s confusing… what I’m trying to say is, if we have a frame that is 436 x 1024 (3 rgb channels), then the output from the first layer of the pre-trained resnet-50 is 218 x 512 (64 channels) so we should get x, y, r  and optic flow for the reduced-image size (e.g., 218x512).
+
+Then we have three inputs to the network we’re designing:
+- image convolved with pre-trained weights from first layer (input:  64 channels x w/2 x h/2)
+- x, y, r on w/h x h/2 sized image (our labels for training)
+- optic flow (input:  1 x w/2 x h/2) [I think the plan for this is still that we’ll train one with and one without optic flow and compare]
+
+For everything I’ve done so far I’ve been working on single images but we’re going to have to use a dataloader if we want to train the net. So now that I’ve figured out how to do the image convolution, and get the optic flow, I’m going to see if I can do it using dataloaders.
+
+Optic Flow repository used:  https://github.com/princeton-vl/RAFT
+Rated 8 on:  http://sintel.is.tue.mpg.de/results
