@@ -2,7 +2,7 @@ Tracking what I'm learning.
 
 26 April 2021
 
-I learned 1) how to get  optic flow data and 2) how to apply the convolutions from the first layer of a trained CNN to individual frames. I can send you the code, or if you were able to get an openmind account, I can show you where it is on openmind.
+I learned 1) how to get  optic flow data and 2) how to apply the convolutions from the first layer of a trained CNN to individual frames (preTrainedCNN.ipynb).
 
 I’ve also been thinking about the easiest approach to the dimension problem. Applying the convolution from the first layer of a pre-trained resnet-50 reduces the image w x h dimensions by 2 so I think that’ll be relatively easy to handle by getting the data on the half-size image (i.e., take every other pixel of the image to create a new image and then get the x, y, r coordinates and the optic flow on the reduced-size image) and putting the results from the first layer of the convnet.
 
