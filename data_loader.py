@@ -14,6 +14,9 @@ sys.path.append('RAFT/core')
 from utils.frame_utils import readFlow as read_flow
 from utils import flow_viz
 
+def read_flo_to_img_tensor(flo_file):
+    return torch.from_numpy(flow_viz.flow_to_image(read_flow(flo_file)))
+
 # Pad the frame as needed to make a square, and translate the label's (x, y, _)
 # coordinates as necessary.
 def square_pad_frame_and_labels(frames, labels):
@@ -116,14 +119,28 @@ class Fove8nDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         (video_dir_path, frame_labels) = self.sample_dirs_and_labels[idx]
         # Make sure to sort frames which have format: frame000NN
-        frame_tensor_files = sorted(glob.glob(\
-            os.path.join(video_dir_path, self.preprocessed_tensors_dir_pattern, '*.pt')))
+        frame_tensor_files = sorted(glob.glob(os.path.join(video_dir_path, self.preprocessed_tensors_dir_pattern, '*.pt')))
         # Each tensor has shape: [1 x CHANNELS x HEIGHT x WIDTH]
         frame_tensors = [torch.load(f) for f in frame_tensor_files]
 
         # Stack on the 0th dimension, from first to last.
         # dim: [FRAMES x CHANNELS x HEIGHT x WIDTH]
         frames_tensor = torch.vstack(frame_tensors)
+
+        # Add the optical flow images as extra channels to the frames tensors.
+        if self.use_optical_flow:
+            flo_files = sorted(glob.glob(os.path.join(video_dir_path, self.optical_flow_frames_dir_pattern, '*.flo')))
+            flo_img_tensors = [read_flo_to_img_tensor(flo_file) for flo_file in flo_files]
+            # The first optical flow frame is always missing-- duplicate the second
+            # frame so that dimensions match with the raw video frames.
+            flo_img_tensors.insert(0, flo_img_tensors[0])
+            # dim: [FRAMES x HEIGHT x WIDTH x CHANNELS]
+            flo_imgs_tensor = torch.vstack([f.unsqueeze(dim=0) for f in flo_img_tensors])
+            # permute to match frames tensor: [FRAMES x CHANNELS x HEIGHT x WIDTH]
+            flo_imgs_tensor = flo_imgs_tensor.permute(0, 3, 1, 2)
+
+            # Concatenate the optical flow channels onto the frames' CNN channel outputs.
+            frames_tensor = torch.cat((frames_tensor, flo_imgs_tensor), dim=1)
 
         # Number of frames and labels (x, y, r) should be the same.
         assert frames_tensor.shape[0] == frame_labels.shape[0]
@@ -148,6 +165,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='fove8n data loader test run')
     parser.add_argument('--root_videos_dir', required=True)
     parser.add_argument('--preprocessed_tensors_dir_pattern', required=True)
+    parser.add_argument('--optical_flow_frames_dir_pattern', default='')
     parser.add_argument('--labels_scale', type=float, required=True)
     args = parser.parse_args()
 
@@ -155,6 +173,7 @@ if __name__ == '__main__':
 
     train_dataset = Fove8nDataset(root_videos_dir = args.root_videos_dir,
                                   preprocessed_tensors_dir_pattern = args.preprocessed_tensors_dir_pattern,
+                                  optical_flow_frames_dir_pattern = args.optical_flow_frames_dir_pattern,
                                   labels_scale = args.labels_scale)
 
     print('Batch size: 2')

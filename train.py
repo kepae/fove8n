@@ -43,6 +43,7 @@ if __name__ == '__main__':
     # Data Loader parameters.
     parser.add_argument('--root_videos_dir', required=True)
     parser.add_argument('--preprocessed_tensors_dir_pattern', required=True)
+    parser.add_argument('--optical_flow_frames_dir_pattern', default='')
     parser.add_argument('--labels_scale', type=float, required=True)
     # Training parameters.
     parser.add_argument('--gru_hidden_size', type=int, default=3, required=True)
@@ -50,18 +51,24 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=.1)
 
     args = parser.parse_args()
-    print(args)
+    print("Parsed args: {}".format(args))
 
     # Load the data.
     train_dataset = Fove8nDataset(root_videos_dir = args.root_videos_dir,
                                   preprocessed_tensors_dir_pattern = args.preprocessed_tensors_dir_pattern,
+                                  optical_flow_frames_dir_pattern = args.optical_flow_frames_dir_pattern,
                                   labels_scale = args.labels_scale)
 
     train_dataloader = DataLoader(train_dataset, batch_size=2, shuffle=True)
 
     # TODO: Don't hardcode these parameters. It works because that's the only data shape we have at the moment.
     # Network.
-    model = OurNet(num_channels=64, gru_hidden_size=3, frame_height=224, frame_width=224)
+    print('Instantiating model.')
+    num_channels = 64
+    if args.optical_flow_frames_dir_pattern:
+        print('Adding expected channels for optical flow.')
+        num_channels += 3
+    model = OurNet(num_channels=num_channels, gru_hidden_size=3, frame_height=224, frame_width=224)
 
     # Select Mean Square Entropy / L2 loss.
     mse_loss = nn.MSELoss()

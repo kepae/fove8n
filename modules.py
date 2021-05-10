@@ -18,6 +18,7 @@ class OurNet(nn.Module):
         num_features = num_channels * frame_height * frame_width
 
         # An optional fully-connected layer. Kills my machine's memory, so it's likely disabled in forward().
+        # linear_pre_out_size = frame_height * frame_width
         # self.linear_pre = nn.Linear(num_features, num_features)
 
         # TODO: Fully or semi-connected layer that loops GRU output as part of the next seq input.
@@ -49,9 +50,6 @@ class OurNet(nn.Module):
     def forward(self, input):
         # input.shape: [batch, frames, C, H, W]
         input = self.frame_flatten(input)
-
-        # WARNING: CAN'T USE THIS LAYER, KILLS MEMORY
-        # input = self.linear_pre(input)
 
         # input.shape: [batch, frames, C * H * W]
         # gru_output.shape: [batch, frames, hidden_size]
