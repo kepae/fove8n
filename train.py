@@ -42,8 +42,10 @@ if __name__ == '__main__':
     parser.add_argument('--labels_scale', type=float, required=True)
     # Training parameters.
     parser.add_argument('--epochs', type=int, required=True)
+    parser.add_argument('--learning_rate', type=float, default=.1)
 
     args = parser.parse_args()
+    print(args)
 
     # Load the data.
     train_dataset = Fove8nDataset(root_videos_dir = args.root_videos_dir,
@@ -60,6 +62,6 @@ if __name__ == '__main__':
     mse_loss = nn.MSELoss()
 
     # Optimizer.
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9)
 
     train(train_dataloader, net, optimizer, mse_loss, args.epochs, writer)
