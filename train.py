@@ -1,5 +1,5 @@
 # Stateless training method (i.e. doesn't depend on globals).
-def train(train_loader, net, optimizer, loss_fn, epochs):
+def train(train_loader, net, optimizer, loss_fn, epochs, opt_writer=None):
     print('Beginning training.')
     running_loss = 0.0
     for epoch in range(epochs):
@@ -11,12 +11,18 @@ def train(train_loader, net, optimizer, loss_fn, epochs):
             # forward + backward + optimize
             outputs = net(inputs)
             loss = loss_fn(outputs, labels)
+            if opt_writer:
+                writer.add_scalar("Loss/train", loss, epoch)
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
-            print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, batch_idx + 1, running_loss / 2000))
+            if epoch % 200 == 199:    # print every 200 mini-batches
+                print('[%d, %5d] loss: %.3f' %
+                    (epoch + 1, batch_idx + 1, running_loss / 2000))
+
+    if opt_writer:
+        writer.flush()
 
 
 if __name__ == '__main__':
@@ -26,6 +32,8 @@ if __name__ == '__main__':
     import torch.nn as nn
     import torch.optim as optim
     from torch.utils.data import DataLoader
+    from torch.utils.tensorboard import SummaryWriter
+    writer = SummaryWriter()
 
     parser = argparse.ArgumentParser(description='fove8n training script')
     # Data Loader parameters.
@@ -54,4 +62,4 @@ if __name__ == '__main__':
     # Optimizer.
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
-    train(train_dataloader, net, optimizer, mse_loss, args.epochs)
+    train(train_dataloader, net, optimizer, mse_loss, args.epochs, writer)
