@@ -1,9 +1,6 @@
 # scratch data and experimenting directory
 scratch/
 
-# Tensorboard visualization.
-runs/
-
 # RAFT non-library data
 RAFT/demo-frames
 
