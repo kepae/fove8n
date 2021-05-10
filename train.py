@@ -13,13 +13,17 @@ def train(train_loader, net, optimizer, loss_fn, epochs, opt_writer=None):
             loss = loss_fn(outputs, labels)
             if opt_writer:
                 writer.add_scalar("Loss/train", loss, epoch)
+            
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
-            if epoch % 200 == 199:    # print every 200 mini-batches
-                print('[%d, %5d] loss: %.3f' %
-                    (epoch + 1, batch_idx + 1, running_loss / 2000))
+            if epoch % 20 == 19:    # print every 20 mini-batches
+                print('[%d, %5d] running_loss: %.3f' %
+                    (epoch + 1, batch_idx + 1, running_loss / 20))
+                print('outputs: {}'.format(outputs))
+                print('labels: {}'.format(labels))
+                running_loss = 0
 
     if opt_writer:
         writer.flush()
@@ -41,6 +45,7 @@ if __name__ == '__main__':
     parser.add_argument('--preprocessed_tensors_dir_pattern', required=True)
     parser.add_argument('--labels_scale', type=float, required=True)
     # Training parameters.
+    parser.add_argument('--gru_hidden_size', type=int, default=3, required=True)
     parser.add_argument('--epochs', type=int, required=True)
     parser.add_argument('--learning_rate', type=float, default=.1)
 
@@ -56,12 +61,12 @@ if __name__ == '__main__':
 
     # TODO: Don't hardcode these parameters. It works because that's the only data shape we have at the moment.
     # Network.
-    net = OurNet(num_channels=64, gru_hidden_size=3, frame_height=224, frame_width=224)
+    model = OurNet(num_channels=64, gru_hidden_size=3, frame_height=224, frame_width=224)
 
     # Select Mean Square Entropy / L2 loss.
     mse_loss = nn.MSELoss()
 
     # Optimizer.
-    optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9)
+    optimizer = optim.SGD(model.parameters(), lr=args.learning_rate)
 
-    train(train_dataloader, net, optimizer, mse_loss, args.epochs, writer)
+    train(train_dataloader, model, optimizer, mse_loss, args.epochs, writer)

@@ -17,12 +17,18 @@ class OurNet(nn.Module):
         self.frame_flatten = nn.Flatten(start_dim=2)
         num_features = num_channels * frame_height * frame_width
 
+        # An optional fully-connected layer. Kills my machine's memory, so it's likely disabled in forward().
+        # self.linear_pre = nn.Linear(num_features, num_features)
+
         # TODO: Fully or semi-connected layer that loops GRU output as part of the next seq input.
 
         # Use out-of-the-box GRU for now.
         self.gru = nn.GRU(input_size=num_features,
-                          hidden_size=gru_hidden_size, num_layers=1, bias=True,
+                          hidden_size=self.gru_hidden_size, num_layers=1, bias=True,
                           batch_first=True, dropout=0, bidirectional=False)
+
+
+        self.linear_post = nn.Linear(self.gru_hidden_size, 3)
         
 
         # ALTERNATE GRU IDEA:
@@ -44,12 +50,18 @@ class OurNet(nn.Module):
         # input.shape: [batch, frames, C, H, W]
         input = self.frame_flatten(input)
 
+        # WARNING: CAN'T USE THIS LAYER, KILLS MEMORY
+        # input = self.linear_pre(input)
+
         # input.shape: [batch, frames, C * H * W]
         # gru_output.shape: [batch, frames, hidden_size]
         # h_n.shape: [1, batch, hidden_size]
-        gru_output, h_n = self.gru(input)
+        h_0 = torch.zeros(1, input.size(0), self.gru_hidden_size).requires_grad_()
+        gru_output, h_n = self.gru(input, h_0.detach())
         
-        return gru_output
+        output = self.linear_post(gru_output)
+
+        return output
 
         # TODO: code for the custom GRU cell
         '''
