@@ -71,7 +71,7 @@ def resize_frame_and_labels(frames, labels, size):
     return (resized_frames, resized_labels)
     
 
-class MyDataset(torch.utils.data.Dataset):
+class Fove8nDataset(torch.utils.data.Dataset):
     def __init__(self,
                  root_videos_dir,
                  preprocessed_tensors_dir_pattern,
@@ -135,7 +135,7 @@ class MyDataset(torch.utils.data.Dataset):
                                                              padded_labels,
                                                              self.resize_size)
 
-        return final_frames, final_labels
+        return final_frames.float(), final_labels.float()
 
 
 
@@ -146,9 +146,6 @@ if __name__ == '__main__':
     parser.add_argument('--labels_scale', type=float, required=True)
     args = parser.parse_args()
 
-    # all_set = args.root_videos_dir and args.preprocessed_tensors_dir_pattern and args.labels_scale
-    # if not all_set:
-    #     print("")
     print(args)
 
     train_dataset = MyDataset(root_videos_dir = args.root_videos_dir,
@@ -157,6 +154,6 @@ if __name__ == '__main__':
 
     train_dataloader = DataLoader(train_dataset, batch_size=2, shuffle=True)
 
-    print('Running one enumereation of the training dataloader.')
+    print('Running one enumeration of the training dataloader.')
     for (idx, (input, labels)) in enumerate(train_dataloader):
         print('idx: {}\ninput.shape: {}\nlabels.shape: {}'.format(idx, input.shape, labels.shape))
