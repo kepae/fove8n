@@ -13,6 +13,7 @@ scipy = "^1.6.3"
 scikit-image = "^0.18.1"
 torch = "^1.8.1"
 torchvision = "^0.9.1"
+torchinfo = "^1.4.4"
 
 
 [tool.poetry.dev-dependencies]

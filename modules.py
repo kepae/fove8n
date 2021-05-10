@@ -69,6 +69,7 @@ class OurNet(nn.Module):
 
 
 if __name__ == '__main__':
+    from torchinfo import summary
     batch = 2
     frames = 30
     channels = 90
@@ -83,3 +84,5 @@ if __name__ == '__main__':
 
     print("input shape, [BATCH, FRAMES, C, H, W]: {}".format(input.shape))
     print("output shape, [BATCH, FRAMES, PREDICTION]: {}".format(output.shape))
+    print()
+    print(summary(net, input_size=(batch, frames, channels, height, width)))
