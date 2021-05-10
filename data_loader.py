@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 
 import argparse
@@ -8,6 +9,10 @@ from torch.utils.data import Dataset, DataLoader
 
 import torchvision
 from torchvision import transforms
+
+sys.path.append('RAFT/core')
+from utils.frame_utils import readFlow as read_flow
+from utils import flow_viz
 
 # Pad the frame as needed to make a square, and translate the label's (x, y, _)
 # coordinates as necessary.
@@ -83,11 +88,11 @@ class Fove8nDataset(torch.utils.data.Dataset):
         self.preprocessed_tensors_dir_pattern = preprocessed_tensors_dir_pattern
         self.labels_scale = labels_scale
         self.resize_size = resize_size
-        # self.use_optical_flow = False
-        # if optical_flow_frames_dir_pattern:
-        #     self.use_optical_flow = True
-        #     self.optical_flow_frames_dir_pattern = optical_flow_frames_dir_pattern
-        #     # else -> None type
+        self.use_optical_flow = False
+        if optical_flow_frames_dir_pattern:
+            self.use_optical_flow = True
+            self.optical_flow_frames_dir_pattern = optical_flow_frames_dir_pattern
+            # else -> None type
 
         # Index all the video samples and their labels.
         # Assume all video sample directories have label files.
@@ -148,10 +153,11 @@ if __name__ == '__main__':
 
     print(args)
 
-    train_dataset = MyDataset(root_videos_dir = args.root_videos_dir,
-                              preprocessed_tensors_dir_pattern = args.preprocessed_tensors_dir_pattern,
-                              labels_scale = args.labels_scale)
+    train_dataset = Fove8nDataset(root_videos_dir = args.root_videos_dir,
+                                  preprocessed_tensors_dir_pattern = args.preprocessed_tensors_dir_pattern,
+                                  labels_scale = args.labels_scale)
 
+    print('Batch size: 2')
     train_dataloader = DataLoader(train_dataset, batch_size=2, shuffle=True)
 
     print('Running one enumeration of the training dataloader.')
