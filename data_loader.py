@@ -14,8 +14,9 @@ sys.path.append('RAFT/core')
 from utils.frame_utils import readFlow as read_flow
 from utils import flow_viz
 
+# Read a .flo file, transform it into an image, and turn it into a tensor.
 def read_flo_to_img_tensor(flo_file):
-    return torch.from_numpy(flow_viz.flow_to_image(read_flow(flo_file)))
+    return torch.from_numpy(flow_viz.flow_to_image(read_flow(flo_file))) / 255
 
 # Pad the frame as needed to make a square, and translate the label's (x, y, _)
 # coordinates as necessary.

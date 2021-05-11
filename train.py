@@ -68,7 +68,7 @@ if __name__ == '__main__':
     if args.optical_flow_frames_dir_pattern:
         print('Adding expected channels for optical flow.')
         num_channels += 3
-    model = OurNet(num_channels=num_channels, gru_hidden_size=3, frame_height=224, frame_width=224)
+    model = OurNet(num_channels=num_channels, gru_hidden_size=args.gru_hidden_size, frame_height=224, frame_width=224)
 
     # Select Mean Square Entropy / L2 loss.
     mse_loss = nn.MSELoss()
