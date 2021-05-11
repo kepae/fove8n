@@ -9,6 +9,9 @@ Our approach to build a new DNN will be guided by the way the retina samples the
 *Example basic suggested foveation for one frame*
 ![Example basic suggested foveation for one frame](resources/fove8n_mask.png)
 
+*Proposal "Foveation Path"*
+![Proposal "Foveation Path"](resources/fove8n_output_example.png)
+
 *Example output from applying the PA module*
 ![Example output from applying the PA module](resources/example_pa_module_output.png)
 
