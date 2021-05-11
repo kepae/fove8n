@@ -6,6 +6,9 @@ Deep neural networks (DNNs) optimized for object recognition are the best models
 
 Our approach to build a new DNN will be guided by the way the retina samples the environment and the way primary visual cortex processes visual input. The architecture will merge a Persistence of Appearance (PA) module (from the [PAN network](https://github.com/zhang-can/PAN-PyTorch)), a method that is more computationally efficient and accurate than existing optical flow methods with a recurrent neural network architecture that is designed to prioritize areas of motion within a frame. We hope that that the PA frames will guide the sampling location from each video, thus reducing the computational demand of processing videos. In addition, we expect this design will reproduce an attention-like effect (i.e., pattern of saccades) during input-processing.
 
+*Example basic suggested foveation for one frame*
+![Example basic suggested foveation for one frame](resources/fove8n_mask.png)
+
 *Example output from applying the PA module*
 ![Example output from applying the PA module](resources/example_pa_module_output.png)
 
