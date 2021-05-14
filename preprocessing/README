@@ -5,3 +5,5 @@ frTens.py gets the output of the first convolution of a pre-trained resnet-50 fo
 getOpticFlow.py gets the optic flow for each frame (relative to the previous frame) using RAFT
 
 xy_fixed_r.py gets the label for each frame where x and y are a coordinate and r is a fixed radius of 25. x and y are generated using the optic flow data. 
+
+DataLoader.py is updated to handle data in this new format
